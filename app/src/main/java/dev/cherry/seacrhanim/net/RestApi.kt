@@ -14,7 +14,7 @@ import okio.Buffer
  * @since 13.02.2017.
  */
 
-class RestApi(private val mContext: Context) {
+class RestApi(val mContext: Context) {
 
     private val mHttpClient: OkHttpClient
 
