@@ -1,6 +1,5 @@
 package dev.cherry.seacrhanim.entity
 
-import android.location.Location
 import com.fasterxml.jackson.annotation.JsonProperty
 
 
@@ -34,7 +33,7 @@ class City {
     var hotelsCount: Int = 0
 
     @JsonProperty("iata")
-    var iata: List<String>? = null
+    lateinit var iata: List<String>
 
     @JsonProperty("city")
     var city: String? = null
@@ -62,4 +61,8 @@ class City {
 
     @JsonProperty("state")
     var state: Any? = null
+
+    override fun toString(): String {
+        return "$fullname " + if (iata.isEmpty()) "" else "(${iata[0]})"
+    }
 }
