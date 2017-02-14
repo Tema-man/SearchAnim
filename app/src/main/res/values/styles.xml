@@ -6,7 +6,17 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorHint">@color/textColorHint</item>
+
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:textColorPrimaryInverse">@color/textColorPrimaryInverse</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary</item>
+        <item name="android:textColorTertiary">@color/textColorTertiary</item>
+        <item name="android:textColorHint">@color/textColorTertiary</item>
+    </style>
+
+    <style name="PopupTheme">
+        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
     </style>
 
 </resources>
