@@ -2,6 +2,12 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="textColorHint">#fff7fa</color>
+    <color name="colorPrimaryLight">#C5CAE9</color>
+    <color name="colorAccent">#03A9F4</color>
+
+    <color name="textColorPrimary">#212121</color>
+    <color name="textColorPrimaryInverse">#FFFFFF</color>
+    <color name="textColorSecondary">#757575</color>
+    <color name="textColorTertiary">#BDBDBD</color>
+
 </resources>
