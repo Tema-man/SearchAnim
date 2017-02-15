@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/label_sourcePoint"
-            android:inputType="textAutoComplete|textAutoCorrect|textCapSentences"
+            android:inputType="textAutoComplete|textCapSentences"
             android:maxLines="1"
             android:paddingEnd="32dp"
             android:paddingRight="32dp"
@@ -85,7 +85,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/label_destinationPoint"
-            android:inputType="textAutoComplete|textAutoCorrect|textCapSentences"
+            android:inputType="textAutoComplete|textCapSentences"
             android:maxLines="1"
             android:paddingEnd="32dp"
             android:paddingRight="32dp"
@@ -108,7 +108,7 @@
         app:layout_constraintVertical_bias="0.35000002"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
