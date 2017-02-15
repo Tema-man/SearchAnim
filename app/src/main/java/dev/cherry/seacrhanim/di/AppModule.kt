@@ -5,14 +5,29 @@ import dagger.Module
 import dagger.Provides
 import dev.cherry.seacrhanim.net.RestApi
 import dev.cherry.seacrhanim.repository.CitiesRepository
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Singleton
 
 /**
- * @author DVLP_2
+ * Dagger Module for app classes
+ *
+ * @author Artemii Vishnevskii
  * @since 13.02.2017.
  */
 @Module
 class AppModule(val mAppContext: Context) {
+
+    @Provides
+    @Singleton
+    fun provideHttpClient(): OkHttpClient {
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.level = HttpLoggingInterceptor.Level.BODY
+
+        return OkHttpClient.Builder()
+                .addInterceptor(interceptor)
+                .build()
+    }
 
     @Provides
     @Singleton

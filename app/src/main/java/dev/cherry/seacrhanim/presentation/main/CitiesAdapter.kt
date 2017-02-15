@@ -12,7 +12,9 @@ import java.util.*
 
 
 /**
- * @author DVLP_2
+ * Adapter class for AutoCompleteTextView items
+ *
+ * @author Artemii Vishnevskii
  * @since 14.02.2017.
  */
 class CitiesAdapter(val mFilter: Filter) : BaseAdapter(), Filterable {

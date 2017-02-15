@@ -10,8 +10,9 @@ import org.json.JSONObject
 import javax.inject.Inject
 
 /**
- * @author DVLP_2
- * *
+ * Repository class. Provides [City] data.
+ *
+ * @author Artemii Vishnevskii
  * @since 13.02.2017.
  */
 class CitiesRepository {
@@ -20,26 +21,35 @@ class CitiesRepository {
     lateinit var mRestApi: RestApi
 
     init {
+        // inject dependencies
         App.graph.inject(this)
     }
 
+    /**
+     * Requests a cities list from server. Call is blocking, because of network request.
+     *
+     * @param name city name or iata code
+     * @param lang language for result
+     * @return [List] of [City]
+     */
     fun getCities(name: String, lang: String): List<City> {
         try {
-            return requestCities(name, lang)
+            // create get request
+            val request = Request.Builder()
+                    .url("https://yasen.hotellook.com/autocomplete?term=$name&lang=$lang")
+                    .get().build()
+
+            // receiving data
+            val response: String = mRestApi.makeRequest(request)
+
+            // find cities collection
+            val obj: JSONObject = JSONObject(response)
+            val citiesStr = obj.getJSONArray("cities").toString()
+
+            // parsing result
+            return JsonParser.arrayList(citiesStr, City::class.java)
         } catch (e: Exception) {
             throw NetworkErrorException(e)
         }
-    }
-
-    private fun requestCities(name: String, lang: String): List<City> {
-        val request = Request.Builder()
-                .url("https://yasen.hotellook.com/autocomplete?term=$name&lang=$lang")
-                .get().build()
-
-        val response: String = mRestApi.makeRequest(request)
-        val obj: JSONObject = JSONObject(response)
-        val citiesStr = obj.getJSONArray("cities").toString()
-
-        return JsonParser.arrayList(citiesStr, City::class.java)
     }
 }

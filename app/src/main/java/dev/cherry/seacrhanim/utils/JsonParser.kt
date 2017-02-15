@@ -6,9 +6,8 @@ import java.util.*
 
 /**
  * An utility class for parsing json objects using Jackson data binding library
-
+ *
  * @author Artemii Vishnevskii
- * *
  * @author Temaa.mann@gmail.com
  */
 object JsonParser {
