@@ -1,24 +1,20 @@
 package dev.cherry.seacrhanim.presentation.main
 
+import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.Toolbar
 import android.widget.Filter
-import android.widget.ProgressBar
 import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import dev.cherry.seacrhanim.R
 import dev.cherry.seacrhanim.entity.City
-import dev.cherry.seacrhanim.presentation.view.DelayAutoCompleteTextView
+import dev.cherry.seacrhanim.presentation.map.MapActivity
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : MvpAppCompatActivity(), MainView {
 
     @InjectPresenter
     lateinit var mPresenter: MainPresenter
-    lateinit var mFromText: DelayAutoCompleteTextView
-    lateinit var mFromProgress: ProgressBar
-    lateinit var mToText: DelayAutoCompleteTextView
-    lateinit var mToProgress: ProgressBar
     lateinit var mCitiesAdapter: CitiesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +25,6 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     fun prepareViews() {
         // toolbar setup
-        val toolbar: Toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
@@ -38,16 +33,28 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         mCitiesAdapter = CitiesAdapter(mFilter)
 
         // from field setup
-        mFromProgress = findViewById(R.id.fromProgress) as ProgressBar
-        mFromText = findViewById(R.id.fromText) as DelayAutoCompleteTextView
-        mFromText.setAdapter(mCitiesAdapter)
-        mFromText.setProgressBar(mFromProgress)
+        fromText.setAdapter(mCitiesAdapter)
+        fromText.setProgressBar(fromProgress)
+        fromText.setOnItemClickListener { adapterView, view, i, l ->
+            mPresenter.sourceSelected(adapterView.getItemAtPosition(i) as City)
+        }
 
         // to field setup
-        mToProgress = findViewById(R.id.toProgress) as ProgressBar
-        mToText = findViewById(R.id.toText) as DelayAutoCompleteTextView
-        mToText.setAdapter(mCitiesAdapter)
-        mToText.setProgressBar(mToProgress)
+        toText.setAdapter(mCitiesAdapter)
+        toText.setProgressBar(toProgress)
+        toText.setOnItemClickListener { adapterView, view, i, l ->
+            mPresenter.destinationSelected(adapterView.getItemAtPosition(i) as City)
+        }
+
+        // fab setup
+        fab.setOnClickListener { mPresenter.fabClick() }
+    }
+
+    override fun navigateToMap(mSource: City, mDestination: City) {
+        val intent: Intent = Intent(this, MapActivity::class.java)
+        intent.putExtra(MapActivity.SOURCE, mSource)
+        intent.putExtra(MapActivity.DESTINATION, mDestination)
+        startActivity(intent)
     }
 
     override fun showError(t: Throwable?) {
