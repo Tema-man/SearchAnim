@@ -3,60 +3,52 @@ package dev.cherry.seacrhanim.net
 import android.accounts.NetworkErrorException
 import android.content.Context
 import android.net.ConnectivityManager
+import dev.cherry.seacrhanim.App
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.logging.HttpLoggingInterceptor
-import okio.Buffer
+import javax.inject.Inject
 
 /**
- * @author DVLP_2
- * *
+ * @author Artemii Vishnevskii
  * @since 13.02.2017.
  */
 
 class RestApi(val mContext: Context) {
 
-    private val mHttpClient: OkHttpClient
+    @Inject
+    lateinit var mHttpClient: OkHttpClient
 
     init {
-        val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.BODY
-
-        mHttpClient = OkHttpClient.Builder()
-                .addInterceptor(interceptor)
-                .build()
+        // inject dependencies
+        App.graph.inject(this)
     }
 
+    /**
+     * Performs a network request
+     *
+     * @param request [Request] OkHttp request object
+     * @return server response as [String]
+     */
     fun makeRequest(request: Request): String {
+        // check internet connection availability
         if (!isNetworkAble()) throw NetworkErrorException("No network available")
         try {
+            // make request
             val response = mHttpClient.newCall(request).execute()
+
+            // get string representation of response
             val responseString = response.body().string()
+
+            // check response code
             if (response.code() == 200) {
                 return responseString
             } else {
                 throw NetworkErrorException()
             }
         } catch (e: Exception) {
+            // log an exception and throw network error
             e.printStackTrace()
             throw NetworkErrorException(e)
-        }
-    }
-
-    /**
-     * Converts request body to string
-     *
-     * @param request [Request] object
-     * @return corresponding string
-     */
-    fun bodyToString(request: Request): String {
-        try {
-            val copy = request.newBuilder().build()
-            val buffer = Buffer()
-            copy.body().writeTo(buffer)
-            return buffer.readUtf8()
-        } catch (e: Exception) {
-            return "cannot parse request body"
         }
     }
 
