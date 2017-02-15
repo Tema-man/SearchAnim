@@ -1,68 +1,50 @@
 package dev.cherry.seacrhanim.entity
 
+import android.os.Parcel
+import android.os.Parcelable
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 
 /**
- * @author DVLP_2
+ * Data class for City model
+ *
+ * @author Artemii Vishnevskii
  * @since 13.02.2017.
  */
-class City {
-    @JsonProperty("countryCode")
-    var countryCode: String? = null
-
-    @JsonProperty("country")
-    var country: String? = null
-
-    @JsonProperty("latinFullName")
-    var latinFullName: String? = null
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+class City() : Parcelable {
     @JsonProperty("fullname")
     var fullname: String? = null
-
-    @JsonProperty("clar")
-    var clar: String? = null
-
-    @JsonProperty("latinClar")
-    var latinClar: String? = null
 
     @JsonProperty("location")
     var location: Location? = null
 
-    @JsonProperty("hotelsCount")
-    var hotelsCount: Int = 0
-
     @JsonProperty("iata")
     lateinit var iata: List<String>
 
-    @JsonProperty("city")
-    var city: String? = null
-
-    @JsonProperty("latinCity")
-    var latinCity: String? = null
-
-    @JsonProperty("timezone")
-    var timezone: String? = null
-
-    @JsonProperty("timezonesec")
-    var timezonesec: Int = 0
-
-    @JsonProperty("latinCountry")
-    var latinCountry: String? = null
-
-    @JsonProperty("id")
-    var id: Int = 0
-
-    @JsonProperty("countryId")
-    var countryId: Int = 0
-
-    @JsonProperty("_score")
-    var score: Int = 0
-
-    @JsonProperty("state")
-    var state: Any? = null
-
     override fun toString(): String {
         return "$fullname " + if (iata.isEmpty()) "" else "(${iata[0]})"
+    }
+
+    companion object {
+        @JvmField val CREATOR: Parcelable.Creator<City> = object : Parcelable.Creator<City> {
+            override fun createFromParcel(source: Parcel): City = City(source)
+            override fun newArray(size: Int): Array<City?> = arrayOfNulls(size)
+        }
+    }
+
+    override fun describeContents() = 0
+
+    constructor(source: Parcel) : this() {
+        fullname = source.readString()
+        source.readList(iata, List::class.java.classLoader)
+        location = source.readParcelable(Location::class.java.classLoader)
+    }
+
+    override fun writeToParcel(dest: Parcel?, flags: Int) {
+        dest?.writeString(fullname)
+        dest?.writeList(iata)
+        dest?.writeParcelable(location, flags)
     }
 }
