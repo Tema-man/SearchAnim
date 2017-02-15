@@ -8,6 +8,6 @@
     <color name="textColorPrimary">#212121</color>
     <color name="textColorPrimaryInverse">#FFFFFF</color>
     <color name="textColorSecondary">#757575</color>
-    <color name="textColorTertiary">#BDBDBD</color>
+    <color name="textColorTertiary">#eeeeee</color>
 
 </resources>

@@ -12,11 +12,8 @@
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
         <item name="android:textColorTertiary">@color/textColorTertiary</item>
         <item name="android:textColorHint">@color/textColorTertiary</item>
-    </style>
 
-    <style name="PopupTheme">
-        <item name="android:background">@color/colorPrimaryLight</item>
-        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="colorControlNormal">@color/textColorTertiary</item>
     </style>
 
 </resources>
