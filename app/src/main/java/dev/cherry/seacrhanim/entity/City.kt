@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.util.*
 
 
 /**
@@ -14,17 +15,20 @@ import com.fasterxml.jackson.annotation.JsonProperty
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class City() : Parcelable {
+    @JsonProperty("city")
+    var city: String = ""
+
     @JsonProperty("fullname")
-    var fullname: String? = null
+    var fullname: String = ""
 
     @JsonProperty("location")
-    var location: Location? = null
+    var location: Location = Location()
 
     @JsonProperty("iata")
-    lateinit var iata: List<String>
+    var iata: ArrayList<String> = ArrayList()
 
     override fun toString(): String {
-        return "$fullname " + if (iata.isEmpty()) "" else "(${iata[0]})"
+        return "$fullname " + if (iata.isEmpty()) "" else "(${iata.get(0)})"
     }
 
     companion object {
@@ -37,14 +41,16 @@ class City() : Parcelable {
     override fun describeContents() = 0
 
     constructor(source: Parcel) : this() {
+        city = source.readString()
         fullname = source.readString()
-        source.readList(iata, List::class.java.classLoader)
+        source.readStringList(iata)
         location = source.readParcelable(Location::class.java.classLoader)
     }
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
+        dest?.writeString(city)
         dest?.writeString(fullname)
-        dest?.writeList(iata)
+        dest?.writeStringList(iata)
         dest?.writeParcelable(location, flags)
     }
 }
