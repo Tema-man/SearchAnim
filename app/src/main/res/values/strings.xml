@@ -3,4 +3,6 @@
     <string name="label_sourcePoint">Source point</string>
     <string name="label_destinationPoint">Destination point</string>
     <string name="label_instructions">Choose source and destination\npoints to start search</string>
+    <string name="error_sourceNotSelected">Source point is not selected</string>
+    <string name="error_destinationNotSelected">Destination point is not selected</string>
 </resources>

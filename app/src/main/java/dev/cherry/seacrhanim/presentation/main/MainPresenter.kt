@@ -21,8 +21,8 @@ class MainPresenter : MvpPresenter<MainView>() {
     @Inject
     lateinit var mCityRepo: CitiesRepository
 
-    lateinit var mSource: City
-    lateinit var mDestination: City
+    var mSource: City? = null
+    var mDestination: City? = null
 
     init {
         App.graph.inject(this)
@@ -48,6 +48,16 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun fabClick() {
-        viewState.navigateToMap(mSource, mDestination)
+        if (mSource == null) {
+            viewState.showSourceNotSelectedError()
+            return
+        }
+
+        if (mDestination == null) {
+            viewState.showDestinationNotSelectedError()
+            return
+        }
+
+        viewState.navigateToMap(mSource as City, mDestination as City)
     }
 }

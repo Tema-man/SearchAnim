@@ -12,5 +12,7 @@ import dev.cherry.seacrhanim.entity.City
 @StateStrategyType(AddToEndSingleStrategy::class)
 interface MainView : MvpView {
     fun showError(t: Throwable?)
-    fun navigateToMap(mSource: City, mDestination: City)
+    fun navigateToMap(source: City, destination: City)
+    fun showSourceNotSelectedError()
+    fun showDestinationNotSelectedError()
 }

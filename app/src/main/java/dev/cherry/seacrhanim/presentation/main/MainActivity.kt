@@ -50,11 +50,19 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         fab.setOnClickListener { mPresenter.fabClick() }
     }
 
-    override fun navigateToMap(mSource: City, mDestination: City) {
-        val intent: Intent = Intent(this, MapActivity::class.java)
-        intent.putExtra(MapActivity.SOURCE, mSource)
-        intent.putExtra(MapActivity.DESTINATION, mDestination)
+    override fun navigateToMap(source: City, destination: City) {
+        val intent = Intent(this, MapActivity::class.java)
+        intent.putExtra(MapActivity.SOURCE, source)
+        intent.putExtra(MapActivity.DESTINATION, destination)
         startActivity(intent)
+    }
+
+    override fun showSourceNotSelectedError() {
+        fromText.error = getString(R.string.error_sourceNotSelected)
+    }
+
+    override fun showDestinationNotSelectedError() {
+        toText.error = getString(R.string.error_destinationNotSelected)
     }
 
     override fun showError(t: Throwable?) {
@@ -73,8 +81,8 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         }
 
         override fun performFiltering(constraint: CharSequence?): FilterResults {
-            val filterResults: FilterResults = FilterResults()
-            val cities: List<City> = mPresenter.getCities(constraint as String, "ru")
+            val filterResults = FilterResults()
+            val cities = mPresenter.getCities(constraint as String, "ru")
 
             filterResults.values = cities
             filterResults.count = cities.size
