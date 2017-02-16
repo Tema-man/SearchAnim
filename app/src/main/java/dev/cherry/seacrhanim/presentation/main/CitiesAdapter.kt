@@ -57,7 +57,7 @@ class CitiesAdapter(val mFilter: Filter) : BaseAdapter(), Filterable {
 
     class ViewHolder(view: View?) {
 
-        var text: TextView = view?.findViewById(android.R.id.text1) as TextView
+        var text = view?.findViewById(android.R.id.text1) as TextView
 
         fun bind(city: City) {
             text.text = city.toString()

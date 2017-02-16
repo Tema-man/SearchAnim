@@ -40,10 +40,10 @@ class CitiesRepository {
                     .get().build()
 
             // receiving data
-            val response: String = mRestApi.makeRequest(request)
+            val response = mRestApi.makeRequest(request)
 
             // find cities collection
-            val obj: JSONObject = JSONObject(response)
+            val obj = JSONObject(response)
             val citiesStr = obj.getJSONArray("cities").toString()
 
             // parsing result
