@@ -2,6 +2,7 @@ package dev.cherry.seacrhanim.presentation.map
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.opengl.Matrix
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -14,6 +15,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import dev.cherry.seacrhanim.R
 import dev.cherry.seacrhanim.entity.City
+import dev.cherry.seacrhanim.presentation.map.utils.SphericalMercatorProjection
+import dev.cherry.seacrhanim.presentation.map.utils.SphericalMercatorProjection.Point
 import kotlinx.android.synthetic.main.activity_map.*
 
 
@@ -54,7 +57,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         builder.include(srcMark.position)
         builder.include(dstMark.position)
 
-        createDashedLine(srcMark.position, dstMark.position)
+        createDashedLine(srcMark.position, dstMark.position, 20)
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))
     }
@@ -63,8 +66,6 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         val options = MarkerOptions()
         options.position(LatLng(city.location.lat, city.location.lon))
         options.icon(BitmapDescriptorFactory.fromBitmap(makeCityIcon(city)))
-
-
         return mGoogleMap.addMarker(options)
     }
 
@@ -83,36 +84,46 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         return bitmap
     }
 
-    fun createDashedLine(start: LatLng, end: LatLng) {
-//        var x = latLng.longitude / 360 + .5
-//        val siny = Math.sin(Math.toRadians(latLng.latitude))
-//        var y = 0.5 * Math.log((1 + siny) / (1 - siny)) / -(2 * Math.PI) + .5
+    fun createDashedLine(start: LatLng, end: LatLng, numPoints: Int) {
+        // project geo coordinates to plane
+        val projector = SphericalMercatorProjection(10.0)
+        val startPoint = projector.toPoint(start)
+        val endPoint = projector.toPoint(end)
 
-        var nextPoint = start
-        val numPoints = 20
+        // convert line to vector
+        val x = endPoint.x - startPoint.x
+        val y = endPoint.y - startPoint.y
 
-        val difLat = end.latitude - start.latitude
-        val difLon = end.longitude - start.longitude
+        // calculate angle between vector and x axis [1, 0] (0 parallel)
+        val angle = Math.atan2(-y, x)
+        val cosa = Math.cos(angle)
+        val sina = Math.sin(angle)
 
-        val latStep = difLat / numPoints
-        val lonStep = difLon / numPoints
+        // calculate curve periods
+        val curvePeriod = 2 * Math.PI
+        val periodStep = curvePeriod / numPoints
 
-        val length = 2 * Math.PI
-        val step = length / numPoints
+        var period = 0.0
+        var nextX = startPoint.x
+        var nextY = startPoint.y
 
-        var angle = 0.0
-        while (angle < length) {
+        while (period < curvePeriod - periodStep) {
 
-            mGoogleMap.addMarker(MarkerOptions()
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_line_dot))
-                    .position(nextPoint)
-                    .flat(true))
+            // increment line coordinates
+            nextX += x / numPoints
+            nextY += y / numPoints
 
-            val nextLat = nextPoint.latitude * Math.sin(angle)
-            val nextLon = nextPoint.longitude + lonStep
+            val incY = nextY + Math.sin(period)
 
-            nextPoint = LatLng(nextLat, nextLon)
-            angle += step
+            // rotate point
+            val newX = nextX * cosa - incY * sina
+            val newY = nextX * sina + incY * cosa
+
+            val newLatlng = projector.toLatLng(Point(newX, newY))
+            val icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_line_dot)
+            mGoogleMap.addMarker(MarkerOptions().icon(icon).position(newLatlng).flat(true))
+
+            period += periodStep
         }
     }
 }
