@@ -2,7 +2,6 @@ package dev.cherry.seacrhanim.presentation.map
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.opengl.Matrix
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -15,8 +14,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import dev.cherry.seacrhanim.R
 import dev.cherry.seacrhanim.entity.City
-import dev.cherry.seacrhanim.presentation.map.utils.SphericalMercatorProjection
-import dev.cherry.seacrhanim.presentation.map.utils.SphericalMercatorProjection.Point
+import dev.cherry.seacrhanim.presentation.map.utils.SineLine
 import kotlinx.android.synthetic.main.activity_map.*
 
 
@@ -24,7 +22,6 @@ import kotlinx.android.synthetic.main.activity_map.*
  * @author Artemii Vishnevskii
  * @since 15.02.2017.
  */
-
 
 class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
 
@@ -53,12 +50,15 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         mGoogleMap = map
         val srcMark = drawCityMarker(source)
         val dstMark = drawCityMarker(destination)
+        fitCameraView(srcMark, dstMark)
+        createDashedLine(srcMark.position, dstMark.position)
+        runPlaneAnimation(srcMark.position)
+    }
+
+    fun fitCameraView(src: Marker, dst: Marker) {
         val builder = LatLngBounds.Builder()
-        builder.include(srcMark.position)
-        builder.include(dstMark.position)
-
-        createDashedLine(srcMark.position, dstMark.position, 20)
-
+        builder.include(src.position)
+        builder.include(dst.position)
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))
     }
 
@@ -84,46 +84,17 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         return bitmap
     }
 
-    fun createDashedLine(start: LatLng, end: LatLng, numPoints: Int) {
+    fun createDashedLine(start: LatLng, end: LatLng) {
         // project geo coordinates to plane
-        val projector = SphericalMercatorProjection(10.0)
-        val startPoint = projector.toPoint(start)
-        val endPoint = projector.toPoint(end)
+        val worldSize = 90.0
+        val sineLine = SineLine(worldSize)
+        sineLine.drawLine(start, end, mGoogleMap)
+    }
 
-        // convert line to vector
-        val x = endPoint.x - startPoint.x
-        val y = endPoint.y - startPoint.y
-
-        // calculate angle between vector and x axis [1, 0] (0 parallel)
-        val angle = Math.atan2(-y, x)
-        val cosa = Math.cos(angle)
-        val sina = Math.sin(angle)
-
-        // calculate curve periods
-        val curvePeriod = 2 * Math.PI
-        val periodStep = curvePeriod / numPoints
-
-        var period = 0.0
-        var nextX = startPoint.x
-        var nextY = startPoint.y
-
-        while (period < curvePeriod - periodStep) {
-
-            // increment line coordinates
-            nextX += x / numPoints
-            nextY += y / numPoints
-
-            val incY = nextY + Math.sin(period)
-
-            // rotate point
-            val newX = nextX * cosa - incY * sina
-            val newY = nextX * sina + incY * cosa
-
-            val newLatlng = projector.toLatLng(Point(newX, newY))
-            val icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_line_dot)
-            mGoogleMap.addMarker(MarkerOptions().icon(icon).position(newLatlng).flat(true))
-
-            period += periodStep
-        }
+    fun runPlaneAnimation(start: LatLng) {
+        mGoogleMap.addMarker(MarkerOptions()
+                .position(start)
+                .anchor(0.5f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_plane)))
     }
 }
