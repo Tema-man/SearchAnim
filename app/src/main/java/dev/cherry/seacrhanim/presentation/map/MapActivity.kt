@@ -14,7 +14,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import dev.cherry.seacrhanim.R
 import dev.cherry.seacrhanim.entity.City
-import dev.cherry.seacrhanim.presentation.map.utils.SineLine
+import dev.cherry.seacrhanim.presentation.map.utils.PlaneAnimator
+import dev.cherry.seacrhanim.presentation.map.utils.SineInterpolator
 import kotlinx.android.synthetic.main.activity_map.*
 
 
@@ -23,12 +24,15 @@ import kotlinx.android.synthetic.main.activity_map.*
  * @since 15.02.2017.
  */
 
-class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
 
+class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
     companion object {
+
         val SOURCE: String = "extra_source"
         val DESTINATION: String = "extra_destination"
     }
+
+    val PLANE_SPEED = 2.0
 
     @InjectPresenter
     lateinit var mPresenter: MapPresenter
@@ -36,6 +40,10 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
     lateinit var source: City
     lateinit var destination: City
     lateinit var mGoogleMap: GoogleMap
+    private var isAnimating = false
+
+    private lateinit var mPlaneAnimator: PlaneAnimator
+    private lateinit var mSineInterpolator: SineInterpolator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,12 +54,25 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         destination = intent.getParcelableExtra(DESTINATION)
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (isAnimating) mPlaneAnimator.start()
+    }
+
+    override fun onStop() {
+        super.onPause()
+        mPlaneAnimator.stop()
+    }
+
     override fun onMapReady(map: GoogleMap) {
         mGoogleMap = map
         val srcMark = drawCityMarker(source)
         val dstMark = drawCityMarker(destination)
         fitCameraView(srcMark, dstMark)
-        createDashedLine(srcMark.position, dstMark.position)
+
+        mSineInterpolator = SineInterpolator(srcMark.position, dstMark.position)
+        mSineInterpolator.drawLine(mGoogleMap)
+
         runPlaneAnimation(srcMark.position)
     }
 
@@ -66,6 +87,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         val options = MarkerOptions()
         options.position(LatLng(city.location.lat, city.location.lon))
         options.icon(BitmapDescriptorFactory.fromBitmap(makeCityIcon(city)))
+        options.zIndex(1f)
         return mGoogleMap.addMarker(options)
     }
 
@@ -84,17 +106,15 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         return bitmap
     }
 
-    fun createDashedLine(start: LatLng, end: LatLng) {
-        // project geo coordinates to plane
-        val worldSize = 90.0
-        val sineLine = SineLine(worldSize)
-        sineLine.drawLine(start, end, mGoogleMap)
-    }
-
     fun runPlaneAnimation(start: LatLng) {
-        mGoogleMap.addMarker(MarkerOptions()
+        val plane = mGoogleMap.addMarker(MarkerOptions()
                 .position(start)
-                .anchor(0.5f, 0.5f)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_plane)))
+                .anchor(0.4f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_plane))
+                .zIndex(2f))
+        mPlaneAnimator = PlaneAnimator(mSineInterpolator, PLANE_SPEED)
+        mPlaneAnimator.animate(plane)
+        mPlaneAnimator.start()
+        isAnimating = true
     }
 }

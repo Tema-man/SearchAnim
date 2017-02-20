@@ -1,7 +1,7 @@
 package dev.cherry.seacrhanim.presentation.map.utils
 
 import android.animation.ValueAnimator
-import com.google.android.gms.maps.model.LatLng
+import android.view.animation.LinearInterpolator
 import com.google.android.gms.maps.model.Marker
 
 /**
@@ -9,23 +9,26 @@ import com.google.android.gms.maps.model.Marker
  * @author Temaa.mann@gmail.com
  * @since 19.02.2017
  */
-class PlaneAnimator(
-        val points: MutableList<LatLng>,
-        val interpolator: LatLngInterpolator,
-        val duration: Long) {
+class PlaneAnimator(val mSineInterpolator: SineInterpolator, planeSpeed: Double) {
 
-    val mAnimator = ValueAnimator()
-    lateinit var currentPoint: LatLng
-    lateinit var nextPoint: LatLng
+    private val mAnimator = ValueAnimator()
+    private var duration: Long = Math.round(mSineInterpolator.length / planeSpeed * 1000)
 
     fun animate(marker: Marker) {
         mAnimator.addUpdateListener { animation ->
-            val v = animation.animatedFraction / points.size
-            val newPosition = interpolator.interpolate(v, currentPoint, nextPoint)
+            val currentShift = animation.animatedFraction * mSineInterpolator.length
+            val currentPoint = marker.position
+
+            val newPosition = mSineInterpolator.interpolateLatLng(currentShift)
             marker.position = newPosition
+            marker.rotation = mSineInterpolator.calculateBearing(currentPoint, newPosition)
         }
-        mAnimator.setFloatValues(0f, 1f)
+        mAnimator.interpolator = LinearInterpolator()
+        mAnimator.repeatMode = ValueAnimator.RESTART
+        mAnimator.repeatCount = ValueAnimator.INFINITE
         mAnimator.duration = duration
+        mAnimator.startDelay = 500
+        mAnimator.setFloatValues(0f, 1f)
     }
 
     fun start() {
