@@ -26,8 +26,8 @@ import kotlinx.android.synthetic.main.activity_map.*
 
 
 class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
-    companion object {
 
+    companion object {
         val SOURCE: String = "extra_source"
         val DESTINATION: String = "extra_destination"
     }
@@ -71,9 +71,22 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         fitCameraView(srcMark, dstMark)
 
         mSineInterpolator = SineInterpolator(srcMark.position, dstMark.position)
-        mSineInterpolator.drawLine(mGoogleMap)
 
+        drawSineLine()
         runPlaneAnimation(srcMark.position)
+    }
+
+    fun drawSineLine() {
+        var fraction = 0.0
+        val length = mSineInterpolator.length
+        val step = length / (Math.sqrt(2 * length) + 20)
+        while (fraction <= length) {
+            val newLatLng = mSineInterpolator.interpolate(fraction)
+            val icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_line_dot)
+            mGoogleMap.addMarker(MarkerOptions().icon(icon)
+                    .position(newLatLng).flat(true).zIndex(0f))
+            fraction += step
+        }
     }
 
     fun fitCameraView(src: Marker, dst: Marker) {
@@ -84,11 +97,10 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
     }
 
     fun drawCityMarker(city: City): Marker {
-        val options = MarkerOptions()
-        options.position(LatLng(city.location.lat, city.location.lon))
-        options.icon(BitmapDescriptorFactory.fromBitmap(makeCityIcon(city)))
-        options.zIndex(1f)
-        return mGoogleMap.addMarker(options)
+        return mGoogleMap.addMarker(MarkerOptions()
+                .position(LatLng(city.location.lat, city.location.lon))
+                .icon(BitmapDescriptorFactory.fromBitmap(makeCityIcon(city)))
+                .zIndex(1f))
     }
 
     fun makeCityIcon(city: City): Bitmap {

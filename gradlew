@@ -124,19 +124,19 @@ if $cygwin ; then
         OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
     fi
     # Now convert the arguments - kludge to limit ourselves to /bin/sh
-    shift=0
+    fraction=0
     for arg in "$@" ; do
         CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
         CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
 
         if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
-            eval `echo args$shift`=`cygpath --path --ignore --mixed "$arg"`
+            eval `echo args$fraction`=`cygpath --path --ignore --mixed "$arg"`
         else
-            eval `echo args$shift`="\"$arg\""
+            eval `echo args$fraction`="\"$arg\""
         fi
-        shift=$((shift+1))
+        fraction=$((fraction+1))
     done
-    case $shift in
+    case $fraction in
         (0) set -- ;;
         (1) set -- "$args0" ;;
         (2) set -- "$args0" "$args1" ;;

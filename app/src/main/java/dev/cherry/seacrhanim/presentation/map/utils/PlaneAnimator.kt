@@ -19,7 +19,7 @@ class PlaneAnimator(val mSineInterpolator: SineInterpolator, planeSpeed: Double)
             val currentShift = animation.animatedFraction * mSineInterpolator.length
             val currentPoint = marker.position
 
-            val newPosition = mSineInterpolator.interpolateLatLng(currentShift)
+            val newPosition = mSineInterpolator.interpolate(currentShift)
             marker.position = newPosition
             marker.rotation = mSineInterpolator.calculateBearing(currentPoint, newPosition)
         }
