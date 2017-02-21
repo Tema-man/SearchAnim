@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SeacrhAnim</string>
+    <string name="app_name" translatable="false">SeacrhAnim</string>
     <string name="label_sourcePoint">Source point</string>
     <string name="label_destinationPoint">Destination point</string>
     <string name="label_instructions">Choose source and destination\npoints to start search</string>
