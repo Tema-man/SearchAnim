@@ -3,6 +3,6 @@
     <string name="error_destinationNotSelected">Точка назначения не выбрана</string>
     <string name="error_sourceNotSelected">Точка отправления не выбрана</string>
     <string name="label_destinationPoint">Точка назначения</string>
-    <string name="label_instructions">Выберите точку отправки и точку назначения для поиска</string>
+    <string name="label_instructions">Выберите точку отправления и точку назначения для поиска</string>
     <string name="label_sourcePoint">Точка отправления</string>
 </resources>
