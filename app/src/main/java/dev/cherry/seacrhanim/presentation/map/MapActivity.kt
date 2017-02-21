@@ -129,7 +129,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
 
             // create map dot marker
             val icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_line_dot)
-            googleMap.addMarker(MarkerOptions().icon(icon)
+            googleMap.addMarker(MarkerOptions().icon(icon).anchor(0.5f, 0.5f)
                     .position(newLatLng).flat(true).zIndex(0f))
 
             // increment fraction
@@ -203,7 +203,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         // create and add plane marker
         val plane = googleMap.addMarker(MarkerOptions()
                 .position(start)
-                .anchor(0.4f, 0.5f)
+                .anchor(0.5f, 0.5f)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_plane))
                 .zIndex(2f))
 
@@ -214,5 +214,11 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
 
         // we are animating now
         isAnimating = true
+
+        // assign camera move listener
+        googleMap.setOnCameraMoveListener {
+            // notify animator that camera bearing has changed
+            planeAnimator.cameraBearing = googleMap.cameraPosition.bearing
+        }
     }
 }

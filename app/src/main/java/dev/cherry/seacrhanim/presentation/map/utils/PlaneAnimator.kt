@@ -18,6 +18,9 @@ class PlaneAnimator(val interpolator: GeoInterpolator, private val duration: Lon
     /** Android [ValueAnimator] instance. Used to animate parameters in main thread */
     private val animator = ValueAnimator()
 
+    /** Google map camera bearing correction */
+    var cameraBearing = 0.0f
+
     /**
      * Setup [animator]
      *
@@ -67,7 +70,8 @@ class PlaneAnimator(val interpolator: GeoInterpolator, private val duration: Lon
         val y = Math.sin(lonDiff) * Math.cos(endLat)
         val x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(lonDiff)
 
-        return Math.toDegrees(Math.atan2(y, x)).toFloat()
+        val bearing = Math.toDegrees(Math.atan2(y, x)).toFloat() + (360 - cameraBearing)
+        return if (bearing <= 360) bearing else 360 - bearing
     }
 
     /** Starts an animation */
