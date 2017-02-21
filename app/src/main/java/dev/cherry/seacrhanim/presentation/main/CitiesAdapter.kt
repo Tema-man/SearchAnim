@@ -12,15 +12,19 @@ import java.util.*
 
 
 /**
- * Adapter class for AutoCompleteTextView items
+ * Adapter class for AutoCompleteTextView items. Uses [filter] to search appropriate items
  *
  * @author Artemii Vishnevskii
  * @since 14.02.2017.
+ *
+ * @param filter [Filter] implementation to search an items by specified text
  */
-class CitiesAdapter(val mFilter: Filter) : BaseAdapter(), Filterable {
+class CitiesAdapter(private val filter: Filter) : BaseAdapter(), Filterable {
 
-    var mCitiesList: ArrayList<City> = ArrayList()
+    /** Store cities data */
+    var citiesList: ArrayList<City> = ArrayList()
 
+    /** Android [BaseAdapter.getView] method implementation */
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
         var view: View? = convertView
         if (convertView == null) {
@@ -34,32 +38,74 @@ class CitiesAdapter(val mFilter: Filter) : BaseAdapter(), Filterable {
         return view
     }
 
+    /**
+     * Set a new data list. Do not invalidate adapter automatically. [notifyDataSetChanged]
+     * should be called after this method
+     *
+     * @param cities [List] a list of new cities
+     */
     fun setData(cities: List<City>) {
-        mCitiesList.clear()
-        mCitiesList.addAll(cities)
+        citiesList.clear()
+        citiesList.addAll(cities)
     }
 
+    /**
+     * Returns a list item by position
+     *
+     * @see [BaseAdapter.getItem]
+     * @param position item position
+     * @return [City] item from [citiesList] list
+     */
     override fun getItem(position: Int): City {
-        return mCitiesList[position]
+        return citiesList[position]
     }
 
+    /**
+     * Returns an item id
+     *
+     * @see [BaseAdapter.getItemId]
+     * @param position item position
+     * @return item id
+     */
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
 
+    /**
+     * Returns items count
+     *
+     * @see [BaseAdapter.getCount]
+     * @return items list size
+     */
     override fun getCount(): Int {
-        return mCitiesList.size
+        return citiesList.size
     }
 
+    /**
+     * Returns [Filter] implementation
+     * @see [Filterable.getFilter]
+     */
     override fun getFilter(): Filter {
-        return mFilter
+        return filter
     }
 
-    class ViewHolder(view: View?) {
+    /**
+     * ViewHolder pattern implementation class
+     *
+     * @param view [View] that hold by ViewHolder
+     */
+    private class ViewHolder(view: View?) {
 
+        /** Text view for show [City] title */
         var text = view?.findViewById(android.R.id.text1) as TextView
 
+        /**
+         * Bind [City] data to view
+         *
+         * @param city [City] that will be bind
+         */
         fun bind(city: City) {
+            // get city string representation and display it.
             text.text = city.toString()
         }
     }

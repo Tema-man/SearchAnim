@@ -3,8 +3,10 @@ package dev.cherry.seacrhanim.presentation.map
 import com.arellomobile.mvp.MvpView
 
 /**
+ * MapView intrface
+ *
  * @author Artemii Vishnevskii
- * @since 15.02.2017.
+ * @author Temaa.mann@gmail.com
  */
 interface MapView : MvpView {
 }
