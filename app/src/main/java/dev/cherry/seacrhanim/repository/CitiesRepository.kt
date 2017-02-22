@@ -1,6 +1,6 @@
 package dev.cherry.seacrhanim.repository
 
-import android.accounts.NetworkErrorException
+import com.fasterxml.jackson.core.JsonParseException
 import dev.cherry.seacrhanim.entity.City
 import dev.cherry.seacrhanim.net.RestApi
 import dev.cherry.seacrhanim.utils.JsonParser
@@ -39,7 +39,7 @@ class CitiesRepository(val restApi: RestApi) {
             // parsing result
             return JsonParser.arrayList(citiesStr, City::class.java)
         } catch (e: Exception) {
-            throw NetworkErrorException(e)
+            throw IllegalStateException(e)
         }
     }
 }

@@ -31,7 +31,7 @@ class RestApi(val appContext: Context) {
      */
     fun makeRequest(request: Request): String {
         // check internet connection availability
-        if (!isNetworkAble()) throw NetworkErrorException("No network available")
+        if (!isNetworkAble()) throw IllegalStateException("No network available")
         try {
             // make request
             val response = okHttpClient.newCall(request).execute()
@@ -43,12 +43,12 @@ class RestApi(val appContext: Context) {
             if (response.code() == 200) {
                 return responseString
             } else {
-                throw NetworkErrorException()
+                throw NetworkErrorException("Server error occurred")
             }
         } catch (e: Exception) {
             // log an exception and throw network error
             e.printStackTrace()
-            throw NetworkErrorException(e)
+            throw IllegalStateException(e)
         }
     }
 
