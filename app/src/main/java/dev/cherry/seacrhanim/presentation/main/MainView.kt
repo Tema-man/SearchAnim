@@ -1,7 +1,7 @@
 package dev.cherry.seacrhanim.presentation.main
 
 import com.arellomobile.mvp.MvpView
-import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
+import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import dev.cherry.seacrhanim.entity.City
 
@@ -11,7 +11,7 @@ import dev.cherry.seacrhanim.entity.City
  * @author Artemii Vishnevskii
  * @since 14.02.2017.
  */
-@StateStrategyType(AddToEndSingleStrategy::class)
+@StateStrategyType(OneExecutionStateStrategy::class)
 interface MainView : MvpView {
 
     /**
