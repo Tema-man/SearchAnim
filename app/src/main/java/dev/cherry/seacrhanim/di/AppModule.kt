@@ -3,6 +3,7 @@ package dev.cherry.seacrhanim.di
 import android.content.Context
 import dagger.Module
 import dagger.Provides
+import dev.cherry.seacrhanim.BuildConfig
 import dev.cherry.seacrhanim.net.RestApi
 import dev.cherry.seacrhanim.repository.CitiesRepository
 import okhttp3.OkHttpClient
@@ -16,24 +17,27 @@ import javax.inject.Singleton
  * @since 13.02.2017.
  */
 @Module
-class AppModule(val mAppContext: Context) {
+class AppModule(val appContext: Context) {
 
     @Provides
     @Singleton
     fun provideHttpClient(): OkHttpClient {
-        val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.BODY
+        val okHttpBuilder = OkHttpClient.Builder()
 
-        return OkHttpClient.Builder()
-                .addInterceptor(interceptor)
-                .build()
+        if (BuildConfig.DEBUG) {
+            val interceptor = HttpLoggingInterceptor()
+            interceptor.level = HttpLoggingInterceptor.Level.BODY
+            okHttpBuilder.addInterceptor(interceptor)
+        }
+
+        return okHttpBuilder.build()
     }
 
     @Provides
     @Singleton
-    fun provideRestApi(): RestApi = RestApi(mAppContext)
+    fun provideRestApi(): RestApi = RestApi(appContext)
 
     @Provides
     @Singleton
-    fun provideCitiesRepository(): CitiesRepository = CitiesRepository()
+    fun provideCitiesRepository(restApi: RestApi): CitiesRepository = CitiesRepository(restApi)
 }
