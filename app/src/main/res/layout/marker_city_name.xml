@@ -9,8 +9,9 @@
     android:background="@drawable/bg_city_name_marker"
     android:ellipsize="end"
     android:maxLength="15"
+    android:maxLines="1"
     android:orientation="vertical"
     android:textAllCaps="true"
     android:textColor="@android:color/white"
     android:textSize="12sp"
-    tools:text="MOVAAAAAAAAAAAAAA"/>
+    tools:text="MOVAAAAAA\nAAAAAAAA"/>
