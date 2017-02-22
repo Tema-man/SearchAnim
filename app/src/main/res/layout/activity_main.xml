@@ -129,6 +129,7 @@
         android:layout_height="wrap_content"
         android:drawableBottom="@mipmap/ic_launcher"
         android:gravity="center"
+        android:padding="8dp"
         android:text="@string/label_instructions"
         android:textColor="@color/textColorSecondary"
         android:textSize="20sp"
