@@ -205,6 +205,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
                 .position(start)
                 .anchor(0.5f, 0.5f)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_plane))
+                .flat(true)
                 .zIndex(2f))
 
         // create plane animator and start animation
@@ -214,11 +215,5 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
 
         // we are animating now
         isAnimating = true
-
-        // assign camera move listener
-        googleMap.setOnCameraMoveListener {
-            // notify animator that camera bearing has changed
-            planeAnimator.cameraBearing = googleMap.cameraPosition.bearing
-        }
     }
 }
