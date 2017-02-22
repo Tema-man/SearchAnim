@@ -24,10 +24,10 @@ class MainPresenter : MvpPresenter<MainView>() {
     val locale: String = App.locale
 
     // selected source point
-    var mSource: City? = null
+    var source: City? = null
 
     //selected destinatoin point
-    var mDestination: City? = null
+    var destination: City? = null
 
     // initialization
     init {
@@ -56,7 +56,7 @@ class MainPresenter : MvpPresenter<MainView>() {
      * @param source [City] that selected as source
      */
     fun sourceSelected(source: City) {
-        mSource = source
+        this.source = source
     }
 
     /**
@@ -65,24 +65,24 @@ class MainPresenter : MvpPresenter<MainView>() {
      * @param destination [City] that selected as source
      */
     fun destinationSelected(destination: City) {
-        mDestination = destination
+        this.destination = destination
     }
 
     /** Handles search button click */
     fun searchClick() {
         // check source selected, if not show notification
-        if (mSource == null) {
+        if (source == null) {
             viewState.showSourceNotSelectedError()
             return
         }
 
         // check destination selected, if not show notification
-        if (mDestination == null) {
+        if (destination == null) {
             viewState.showDestinationNotSelectedError()
             return
         }
 
         // ask view to navigate to map screen with selected points
-        viewState.navigateToMap(mSource as City, mDestination as City)
+        viewState.navigateToMap(source as City, destination as City)
     }
 }

@@ -22,8 +22,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : MvpAppCompatActivity(), MainView {
 
     @InjectPresenter
-    lateinit var mPresenter: MainPresenter
-    lateinit var mCitiesAdapter: CitiesAdapter
+    lateinit var presenter: MainPresenter
+    lateinit var citiesAdapter: CitiesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,30 +33,26 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     /** Prepare activity views for usage */
     fun prepareViews() {
-        // toolbar setup
-        setSupportActionBar(toolbar)
-        toolbar.setNavigationOnClickListener { finish() }
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
 
         // cities adapter setup
-        mCitiesAdapter = CitiesAdapter(mFilter)
+        citiesAdapter = CitiesAdapter(mFilter)
 
         // from field setup
-        fromText.setAdapter(mCitiesAdapter)
-        fromText.progressBar = fromProgress
-        fromText.setOnItemClickListener { adapterView, view, i, l ->
-            mPresenter.sourceSelected(adapterView.getItemAtPosition(i) as City)
+        sourceView.setAdapter(citiesAdapter)
+        sourceView.progressBar = sourceProgress
+        sourceView.setOnItemClickListener { adapterView, view, i, l ->
+            presenter.sourceSelected(adapterView.getItemAtPosition(i) as City)
         }
 
         // to field setup
-        toText.setAdapter(mCitiesAdapter)
-        toText.progressBar = toProgress
-        toText.setOnItemClickListener { adapterView, view, i, l ->
-            mPresenter.destinationSelected(adapterView.getItemAtPosition(i) as City)
+        destinationView.setAdapter(citiesAdapter)
+        destinationView.progressBar = destinationProgress
+        destinationView.setOnItemClickListener { adapterView, view, i, l ->
+            presenter.destinationSelected(adapterView.getItemAtPosition(i) as City)
         }
 
-        // fab setup
-        fab.setOnClickListener { mPresenter.searchClick() }
+        // search button setup
+        searchBtn.setOnClickListener { presenter.searchClick() }
     }
 
     /** @see [MainView.navigateToMap] */
@@ -69,12 +65,12 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     /** @see [MainView.showSourceNotSelectedError] */
     override fun showSourceNotSelectedError() {
-        fromText.error = getString(R.string.error_sourceNotSelected)
+        sourceView.error = getString(R.string.error_sourceNotSelected)
     }
 
     /** @see [MainView.showDestinationNotSelectedError] */
     override fun showDestinationNotSelectedError() {
-        toText.error = getString(R.string.error_destinationNotSelected)
+        destinationView.error = getString(R.string.error_destinationNotSelected)
     }
 
     /** @see [MainView.showError] */
@@ -91,11 +87,11 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             if ((results?.count ?: 0) > 0) {
                 @Suppress("UNCHECKED_CAST")
                 // set data and update adapter
-                mCitiesAdapter.setData(results?.values as List<City>)
-                mCitiesAdapter.notifyDataSetChanged()
+                citiesAdapter.setData(results?.values as List<City>)
+                citiesAdapter.notifyDataSetChanged()
             } else {
                 // notify adapter that data is invalid
-                mCitiesAdapter.notifyDataSetInvalidated()
+                citiesAdapter.notifyDataSetInvalidated()
             }
         }
 
@@ -105,7 +101,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             val filterResults = FilterResults()
 
             // request presenter for cities
-            val cities = mPresenter.getCities(constraint as String)
+            val cities = presenter.getCities(constraint as String)
 
             // assign data to results and return
             filterResults.values = cities

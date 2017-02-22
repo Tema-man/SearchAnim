@@ -66,7 +66,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         setContentView(R.layout.activity_map)
 
         // request far from SupportMapFragment
-        (map as SupportMapFragment).getMapAsync(this)
+        (mapFragment as SupportMapFragment).getMapAsync(this)
 
         // get data from intent
         source = intent.getParcelableExtra(SOURCE)

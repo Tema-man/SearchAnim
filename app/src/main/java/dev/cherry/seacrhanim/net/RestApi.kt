@@ -13,10 +13,10 @@ import javax.inject.Inject
  * @since 13.02.2017.
  */
 
-class RestApi(val mContext: Context) {
+class RestApi(val appContext: Context) {
 
     @Inject
-    lateinit var mHttpClient: OkHttpClient
+    lateinit var okHttpClient: OkHttpClient
 
     init {
         // inject dependencies
@@ -34,7 +34,7 @@ class RestApi(val mContext: Context) {
         if (!isNetworkAble()) throw NetworkErrorException("No network available")
         try {
             // make request
-            val response = mHttpClient.newCall(request).execute()
+            val response = okHttpClient.newCall(request).execute()
 
             // get string representation of response
             val responseString = response.body().string()
@@ -58,7 +58,7 @@ class RestApi(val mContext: Context) {
      * @return true if connection available, false otherwise
      */
     private fun isNetworkAble(): Boolean {
-        val connectivityManager = mContext
+        val connectivityManager = appContext
                 .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnectedOrConnecting
