@@ -80,7 +80,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
     }
 
     override fun onStop() {
-        super.onPause()
+        super.onStop()
 
         // stop animation to prevent leaks
         planeAnimator.stop()
