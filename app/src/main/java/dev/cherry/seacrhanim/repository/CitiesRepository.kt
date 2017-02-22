@@ -1,13 +1,11 @@
 package dev.cherry.seacrhanim.repository
 
 import android.accounts.NetworkErrorException
-import dev.cherry.seacrhanim.App
 import dev.cherry.seacrhanim.entity.City
 import dev.cherry.seacrhanim.net.RestApi
 import dev.cherry.seacrhanim.utils.JsonParser
 import okhttp3.Request
 import org.json.JSONObject
-import javax.inject.Inject
 
 /**
  * Repository class. Provides [City] data.
@@ -15,15 +13,7 @@ import javax.inject.Inject
  * @author Artemii Vishnevskii
  * @since 13.02.2017.
  */
-class CitiesRepository {
-
-    @Inject
-    lateinit var mRestApi: RestApi
-
-    init {
-        // inject dependencies
-        App.graph.inject(this)
-    }
+class CitiesRepository(val restApi: RestApi) {
 
     /**
      * Requests a cities list from server. Call is blocking, because of network request.
@@ -40,7 +30,7 @@ class CitiesRepository {
                     .get().build()
 
             // receiving data
-            val response = mRestApi.makeRequest(request)
+            val response = restApi.makeRequest(request)
 
             // find cities collection
             val obj = JSONObject(response)
