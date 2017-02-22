@@ -33,6 +33,8 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     /** Prepare activity views for usage */
     fun prepareViews() {
+        //toolbar setup
+        setSupportActionBar(toolbar)
 
         // cities adapter setup
         citiesAdapter = CitiesAdapter(mFilter)
