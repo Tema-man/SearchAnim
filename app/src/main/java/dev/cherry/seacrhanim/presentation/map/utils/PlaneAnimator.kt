@@ -79,4 +79,20 @@ class PlaneAnimator(val interpolator: GeoInterpolator, private val duration: Lon
     fun stop() {
         animator.cancel()
     }
+
+    /**
+     * Returns current animator play time
+     *
+     * @return [ValueAnimator.getCurrentPlayTime] value
+     */
+    fun getCurrentPlayTime() = animator.currentPlayTime
+
+    /**
+     * Sets animator current play time
+     *
+     * @param time animator play time
+     */
+    fun setCurrentPlayTime(time: Long) {
+        animator.currentPlayTime = time
+    }
 }

@@ -49,8 +49,12 @@ abstract class GeoInterpolator(projector: GeoProjector, start: LatLng, end: LatL
         // Sine wave amplitude
         private var amplitude = 0.0
 
-        /** Initialization */
         init {
+            val lngDelta = end.longitude - start.longitude
+            if (Math.abs(lngDelta) > 180) {
+                startPoint = projector.toPoint(end)
+                endPoint = projector.toPoint(start)
+            }
             // calculate parameters
             length = length(startPoint, endPoint)
             angle = getAngle(startPoint, endPoint)
