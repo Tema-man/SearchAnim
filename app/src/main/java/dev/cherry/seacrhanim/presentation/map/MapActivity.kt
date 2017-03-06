@@ -31,8 +31,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         val DESTINATION: String = "extra_destination"
     }
 
-    /** */
-    private val SAVED_ANIMATION_TIME: String = "saved_animation_time"
+    private val SAVED_ANIMATION_TIME = "saved_animation_time"
 
     /** Plane animation speed parameter */
     private val ANIMATION_DURATION = 3000L
@@ -55,6 +54,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
     // interpolator for geo points
     private lateinit var geoInterpolator: GeoInterpolator
 
+    // used for save and restore animation progress
     private var isAnimating = false
     private var savedAnimationTime = 0L
 
@@ -62,10 +62,8 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
-        // request far from SupportMapFragment
         (mapFragment as SupportMapFragment).getMapAsync(this)
 
-        // get data from intent
         source = intent.getParcelableExtra(SOURCE)
         destination = intent.getParcelableExtra(DESTINATION)
     }
@@ -93,14 +91,33 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         planeAnimator.stop()
     }
 
+
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         outState?.putLong(SAVED_ANIMATION_TIME, savedAnimationTime)
+
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
         savedAnimationTime = savedInstanceState?.getLong(SAVED_ANIMATION_TIME) ?: 0L
+    }
+
+    override fun startPlaneAnimation(animationTime: Long) {
+        val srcMarker = drawCityMarker(source)
+        val dstMarker = drawCityMarker(destination)
+
+        fitCameraView(srcMarker, dstMarker)
+
+        geoInterpolator = GeoInterpolator.SineInterpolator(
+                GeoProjector.Mercator(), srcMarker.position, dstMarker.position)
+
+        drawSineLine()
+        runPlaneAnimation(srcMarker.position)
+    }
+
+    override fun stopPlaneAnimation() {
+        planeAnimator.stop()
     }
 
     /**
@@ -109,25 +126,8 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
      * @see [OnMapReadyCallback.onMapReady]
      */
     override fun onMapReady(map: GoogleMap) {
-        // save map
         googleMap = map
-
-        // draw city markers
-        val srcMarker = drawCityMarker(source)
-        val dstMarker = drawCityMarker(destination)
-
-        // set map view to fit city markers
-        fitCameraView(srcMarker, dstMarker)
-
-        // create geoInterpolator
-        geoInterpolator = GeoInterpolator.SineInterpolator(
-                GeoProjector.Mercator(), srcMarker.position, dstMarker.position)
-
-        // draw plane trajectory
-        drawSineLine()
-
-        // start animation
-        runPlaneAnimation(srcMarker.position)
+        presenter.mapReady()
     }
 
     /** Draw flight trajectory as dotted sine line. Line consists from map [Marker] */
@@ -138,10 +138,8 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         val step = 1.0 / numPoints
         var fraction = 0.0
         while (fraction <= 1.0) {
-            // get interpolated position
             val newLatLng = geoInterpolator.interpolate(fraction)
 
-            // create map dot marker
             val icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_line_dot)
             googleMap.addMarker(MarkerOptions()
                     .icon(icon)
@@ -161,13 +159,11 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
      * @param dst [Marker] destination marker
      */
     fun fitCameraView(src: Marker, dst: Marker) {
-        // compute LatLngBounds
         val builder = LatLngBounds.Builder()
         builder.include(src.position)
         builder.include(dst.position)
-
-        // set map camera view
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(),
+                resources.getDimensionPixelSize(R.dimen.map_padding)))
     }
 
     /**
