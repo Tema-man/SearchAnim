@@ -8,8 +8,6 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
 import dev.cherry.seacrhanim.entity.City
-import java.util.*
-
 
 /**
  * Adapter class for AutoCompleteTextView items. Uses [filter] to search appropriate items
@@ -22,7 +20,7 @@ import java.util.*
 class CitiesAdapter(private val filter: Filter) : BaseAdapter(), Filterable {
 
     /** Store cities data */
-    var citiesList: ArrayList<City> = ArrayList()
+    var citiesList: List<City> = emptyList()
 
     /** Android [BaseAdapter.getView] method implementation */
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
@@ -45,8 +43,7 @@ class CitiesAdapter(private val filter: Filter) : BaseAdapter(), Filterable {
      * @param cities [List] a list of new cities
      */
     fun setData(cities: List<City>) {
-        citiesList.clear()
-        citiesList.addAll(cities)
+        citiesList = cities
     }
 
     /**
@@ -85,7 +82,7 @@ class CitiesAdapter(private val filter: Filter) : BaseAdapter(), Filterable {
      * Returns [Filter] implementation
      * @see [Filterable.getFilter]
      */
-    override fun getFilter(): Filter {
+    override fun getFilter(): Filter? {
         return filter
     }
 
