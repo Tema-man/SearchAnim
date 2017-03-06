@@ -30,6 +30,13 @@ interface GeoProjector {
     fun toLatLng(point: Point): LatLng
 
     /**
+     * Returns world size to fix 0-meridian translation
+     *
+     * @return [Double] world size
+     */
+    fun getWorldSize(): Double
+
+    /**
      * GeoProjector implementation. Used Mercator projection to project geo coordinates to plane
      */
     class Mercator : GeoProjector {
@@ -40,20 +47,22 @@ interface GeoProjector {
         private var worldWidth = DEFAULT_WORLD_WIDTH
 
         override fun toPoint(latLng: LatLng): Point {
-            var x = latLng.longitude / 360.0 + 0.5
-            x = if (x > 0.5) 0.5 + (1.0 - x) else (0.5 - x)
+            val x = latLng.longitude / 360.0 + 0.5
             val siny = Math.sin(Math.toRadians(latLng.latitude))
-            val y = 0.5 * Math.log((1.0 + siny) / (1.0 - siny)) / (-2.0 * Math.PI) + 0.5
+            val y = 0.5 * Math.log((1.0 + siny) / (1.0 - siny)) / -6.283185307179586 + 0.5
             return Point(x * worldWidth, y * worldWidth)
         }
 
         override fun toLatLng(point: Point): LatLng {
-            var x = if (point.x > 0.5) (1.5 - point.x) else (0.5 - point.x)
-            x = x / worldWidth - 0.5
+            val x = point.x / worldWidth - 0.5
             val lng = x * 360.0
             val y = 0.5 - point.y / worldWidth
-            val lat = 90.0 - Math.toDegrees(Math.atan(Math.exp(-y * 2.0 * Math.PI)) * 2.0)
+            val lat = 90.0 - Math.toDegrees(Math.atan(Math.exp(-y * 2.0 * 3.141592653589793)) * 2.0)
             return LatLng(lat, lng)
+        }
+
+        override fun getWorldSize(): Double {
+            return worldWidth
         }
     }
 }

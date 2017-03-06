@@ -1,7 +1,7 @@
 package dev.cherry.seacrhanim.presentation.map.utils
 
-import android.graphics.Point
 import com.google.android.gms.maps.model.LatLng
+import dev.cherry.seacrhanim.presentation.map.utils.GeoProjector.Point
 
 /**
  * Class for interpolate geo position for animation. To use
@@ -27,7 +27,6 @@ abstract class GeoInterpolator(projector: GeoProjector, start: LatLng, end: LatL
     // End point of route
     protected var endPoint: Point = geoProjector.toPoint(end)
 
-
     /**
      * Interpolate position on route by specified fraction
      *
@@ -35,9 +34,6 @@ abstract class GeoInterpolator(projector: GeoProjector, start: LatLng, end: LatL
      * @return [LatLng] interpolated LatLng
      */
     abstract fun interpolate(fraction: Double): LatLng
-
-    /** Data class to store plane coordinates */
-    data class Point(val x: Double, val y: Double)
 
     /** GeoInterpolator implementation. Interpolate specified route as a curve 1 sine period long */
     class SineInterpolator(projector: GeoProjector, start: LatLng, end: LatLng)
@@ -50,15 +46,27 @@ abstract class GeoInterpolator(projector: GeoProjector, start: LatLng, end: LatL
         private var amplitude = 0.0
 
         init {
-            val lngDelta = end.longitude - start.longitude
-            if (Math.abs(lngDelta) > 180) {
-                startPoint = projector.toPoint(end)
-                endPoint = projector.toPoint(start)
-            }
-            // calculate parameters
+            // get shortest path between points and fix coordinates
+            fixCoordinates()
+
             length = length(startPoint, endPoint)
             angle = getAngle(startPoint, endPoint)
             amplitude = length / 7
+        }
+
+        /** Fix linear coordinates 0 meridian translation. */
+        private fun fixCoordinates() {
+            val lenDelta = endPoint.x - startPoint.x
+            val worldSize = geoProjector.getWorldSize()
+            val halfWorldSize = worldSize / 2.0
+
+            // find shortest path
+            if (Math.abs(lenDelta) <= halfWorldSize) return
+            if (startPoint.x < halfWorldSize) {
+                startPoint = Point(startPoint.x + worldSize, startPoint.y)
+            } else if (endPoint.x < halfWorldSize) {
+                endPoint = Point(endPoint.x + worldSize, endPoint.y)
+            }
         }
 
         /**
