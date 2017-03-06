@@ -21,13 +21,13 @@ class MainPresenter : MvpPresenter<MainView>() {
     lateinit var citiesRepository: CitiesRepository
 
     // system locate
-    val locale: String = App.locale
+    private val locale: String = App.locale
 
     // selected source point
-    var source: City? = null
+    private var source: City? = null
 
     //selected destinatoin point
-    var destination: City? = null
+    private var destination: City? = null
 
     // initialization
     init {
@@ -55,7 +55,7 @@ class MainPresenter : MvpPresenter<MainView>() {
      *
      * @param source [City] that selected as source
      */
-    fun sourceSelected(source: City) {
+    fun sourceSelected(source: City?) {
         this.source = source
     }
 
@@ -64,7 +64,7 @@ class MainPresenter : MvpPresenter<MainView>() {
      *
      * @param destination [City] that selected as source
      */
-    fun destinationSelected(destination: City) {
+    fun destinationSelected(destination: City?) {
         this.destination = destination
     }
 

@@ -42,6 +42,13 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         // from field setup
         sourceView.setAdapter(citiesAdapter)
         sourceView.progressBar = sourceProgress
+        sourceView.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                sourceView.setText("")
+                presenter.sourceSelected(null)
+            }
+        }
+
         sourceView.setOnItemClickListener { adapterView, view, i, l ->
             presenter.sourceSelected(adapterView.getItemAtPosition(i) as City)
         }
@@ -49,6 +56,13 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         // to field setup
         destinationView.setAdapter(citiesAdapter)
         destinationView.progressBar = destinationProgress
+        destinationView.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                destinationView.setText("")
+                presenter.destinationSelected(null)
+            }
+        }
+
         destinationView.setOnItemClickListener { adapterView, view, i, l ->
             presenter.destinationSelected(adapterView.getItemAtPosition(i) as City)
         }
