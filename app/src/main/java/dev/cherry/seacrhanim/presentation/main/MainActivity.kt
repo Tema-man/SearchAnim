@@ -1,7 +1,9 @@
 package dev.cherry.seacrhanim.presentation.main
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import android.widget.Filter
 import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
@@ -33,17 +35,24 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     /** Prepare activity views for usage */
-    fun prepareViews() {
+    private fun prepareViews() {
         //toolbar setup
         setSupportActionBar(toolbar)
 
         // cities adapter setup
         citiesAdapter = CitiesAdapter(mFilter)
+        prepareSourceView()
+        prepareDestinationView()
 
-        // from field setup
+        // search button setup
+        searchBtn.setOnClickListener { presenter.searchClick() }
+    }
+
+    private fun prepareSourceView() {
         sourceView.setAdapter(citiesAdapter)
         sourceView.progressBar = sourceProgress
         sourceView.setOnFocusChangeListener { _, hasFocus ->
+            // reset field when focus back
             if (hasFocus) {
                 sourceView.setText("")
                 presenter.sourceSelected(null)
@@ -52,12 +61,15 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
         sourceView.setOnItemClickListener { adapterView, _, i, _ ->
             presenter.sourceSelected(adapterView.getItemAtPosition(i) as City)
+            sourceView.clearFocus()
         }
+    }
 
-        // to field setup
+    private fun prepareDestinationView() {
         destinationView.setAdapter(citiesAdapter)
         destinationView.progressBar = destinationProgress
         destinationView.setOnFocusChangeListener { _, hasFocus ->
+            // reset field when focus back
             if (hasFocus) {
                 destinationView.setText("")
                 presenter.destinationSelected(null)
@@ -66,10 +78,10 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
         destinationView.setOnItemClickListener { adapterView, _, i, _ ->
             presenter.destinationSelected(adapterView.getItemAtPosition(i) as City)
+            destinationView.clearFocus()
+            val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(window.decorView.windowToken, 0)
         }
-
-        // search button setup
-        searchBtn.setOnClickListener { presenter.searchClick() }
     }
 
     /** @see [MainView.navigateToMap] */

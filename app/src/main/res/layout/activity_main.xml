@@ -13,6 +13,7 @@
         android:layout_height="56dp"
         android:layout_marginTop="0dp"
         android:background="@color/colorPrimary"
+        android:focusableInTouchMode="true"
         android:title="@string/app_name"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
