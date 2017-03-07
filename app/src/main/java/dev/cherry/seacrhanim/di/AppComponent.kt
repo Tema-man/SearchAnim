@@ -3,6 +3,7 @@ package dev.cherry.seacrhanim.di
 import dagger.Component
 import dev.cherry.seacrhanim.net.RestApi
 import dev.cherry.seacrhanim.presentation.main.MainPresenter
+import dev.cherry.seacrhanim.presentation.map.MapPresenter
 import dev.cherry.seacrhanim.repository.CitiesRepository
 import javax.inject.Singleton
 
@@ -18,7 +19,9 @@ interface AppComponent {
 
     fun inject(restApi: RestApi)
 
-    fun inject(citiesRepository: CitiesRepository)
+    fun inject(repository: CitiesRepository)
 
-    fun inject(mainPresenter: MainPresenter)
+    fun inject(presenter: MainPresenter)
+
+    fun inject(presenter: MapPresenter)
 }

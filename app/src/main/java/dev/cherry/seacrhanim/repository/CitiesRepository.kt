@@ -1,11 +1,8 @@
 package dev.cherry.seacrhanim.repository
 
-import com.fasterxml.jackson.core.JsonParseException
 import dev.cherry.seacrhanim.entity.City
+import dev.cherry.seacrhanim.net.CitiesService
 import dev.cherry.seacrhanim.net.RestApi
-import dev.cherry.seacrhanim.utils.JsonParser
-import okhttp3.Request
-import org.json.JSONObject
 
 /**
  * Repository class. Provides [City] data.
@@ -13,7 +10,13 @@ import org.json.JSONObject
  * @author Artemii Vishnevskii
  * @since 13.02.2017.
  */
-class CitiesRepository(val restApi: RestApi) {
+class CitiesRepository(val restApi: RestApi, val citiesService: CitiesService) {
+
+    // selected source point
+    var source: City? = null
+
+    //selected destinatoin point
+    var destination: City? = null
 
     /**
      * Requests a cities list from server. Call is blocking, because of network request.
@@ -24,20 +27,8 @@ class CitiesRepository(val restApi: RestApi) {
      */
     fun getCities(name: String, lang: String): List<City> {
         try {
-            // create get request
-            val request = Request.Builder()
-                    .url("https://yasen.hotellook.com/autocomplete?term=$name&lang=$lang")
-                    .get().build()
-
-            // receiving data
-            val response = restApi.makeRequest(request)
-
-            // find cities collection
-            val obj = JSONObject(response)
-            val citiesStr = obj.getJSONArray("cities").toString()
-
-            // parsing result
-            return JsonParser.arrayList(citiesStr, City::class.java)
+            val call = citiesService.getCities(name, lang)
+            return restApi.execute(call).cities
         } catch (e: Exception) {
             throw IllegalStateException(e)
         }
