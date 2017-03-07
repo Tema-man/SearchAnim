@@ -4,7 +4,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.util.*
 
 
 /**
@@ -25,7 +24,7 @@ class City() : Parcelable {
     var location: Location = Location()
 
     @JsonProperty("iata")
-    var iata: ArrayList<String> = ArrayList()
+    var iata: List<String> = emptyList()
 
     override fun toString(): String {
         return "$fullname " + if (iata.isEmpty()) "" else "(${iata.get(0)})"
