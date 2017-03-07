@@ -3,10 +3,7 @@ package dev.cherry.seacrhanim.net
 import android.accounts.NetworkErrorException
 import android.content.Context
 import android.net.ConnectivityManager
-import dev.cherry.seacrhanim.App
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import javax.inject.Inject
+import retrofit2.Call
 
 /**
  * @author Artemii Vishnevskii
@@ -15,33 +12,23 @@ import javax.inject.Inject
 
 class RestApi(val appContext: Context) {
 
-    @Inject
-    lateinit var okHttpClient: OkHttpClient
-
-    init {
-        // inject dependencies
-        App.graph.inject(this)
-    }
-
     /**
-     * Performs a network request
+     * Performs a retrofit call
      *
-     * @param request [Request] OkHttp request object
-     * @return server response as [String]
+     * @param T typed parameter of return object
+     * @param call [Call] retrofit request object
+     * @return parsed json object of [T]
      */
-    fun makeRequest(request: Request): String {
+    fun <T> execute(call: Call<T>): T {
         // check internet connection availability
         if (!isNetworkAble()) throw IllegalStateException("No network available")
         try {
             // make request
-            val response = okHttpClient.newCall(request).execute()
-
-            // get string representation of response
-            val responseString = response.body().string()
+            val response = call.execute()
 
             // check response code
-            if (response.code() == 200) {
-                return responseString
+            if (response.isSuccessful) {
+                return response.body()
             } else {
                 throw NetworkErrorException("Server error occurred")
             }
