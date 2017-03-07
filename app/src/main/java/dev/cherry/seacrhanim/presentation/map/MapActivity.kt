@@ -25,12 +25,6 @@ import kotlinx.android.synthetic.main.activity_map.*
  */
 class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
 
-    // constant names for Intents
-    companion object {
-        val SOURCE: String = "extra_source"
-        val DESTINATION: String = "extra_destination"
-    }
-
     private val SAVED_ANIMATION_TIME = "saved_animation_time"
 
     /** Plane animation speed parameter */
@@ -39,13 +33,8 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
     @InjectPresenter
     lateinit var presenter: MapPresenter
 
-    // selected source point
-    private lateinit var source: City
-
-    // selected destination point
-    private lateinit var destination: City
-
-    // Google map
+    private lateinit var source: Marker
+    private lateinit var destination: Marker
     private lateinit var googleMap: GoogleMap
 
     // animator for plane marker
@@ -63,9 +52,6 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         setContentView(R.layout.activity_map)
 
         (mapFragment as SupportMapFragment).getMapAsync(this)
-
-        source = intent.getParcelableExtra(SOURCE)
-        destination = intent.getParcelableExtra(DESTINATION)
     }
 
     override fun onResume() {
@@ -80,17 +66,8 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
 
     override fun onPause() {
         super.onPause()
-
-        // stop animation to prevent leaks and save its state
-        savedAnimationTime = planeAnimator.getCurrentPlayTime()
-        planeAnimator.stop()
+        stopPlaneAnimation()
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        planeAnimator.stop()
-    }
-
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
@@ -103,23 +80,6 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         savedAnimationTime = savedInstanceState?.getLong(SAVED_ANIMATION_TIME) ?: 0L
     }
 
-    override fun startPlaneAnimation(animationTime: Long) {
-        val srcMarker = drawCityMarker(source)
-        val dstMarker = drawCityMarker(destination)
-
-        fitCameraView(srcMarker, dstMarker)
-
-        geoInterpolator = GeoInterpolator.SineInterpolator(
-                GeoProjector.Mercator(), srcMarker.position, dstMarker.position)
-
-        drawSineLine()
-        runPlaneAnimation(srcMarker.position)
-    }
-
-    override fun stopPlaneAnimation() {
-        planeAnimator.stop()
-    }
-
     /**
      * Map ready callback implementation. Provides Google map
      *
@@ -130,8 +90,45 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
         presenter.mapReady()
     }
 
+    override fun drawCitiesAndTrajectory(src: City, dst: City) {
+        source = drawCityMarker(src)
+        destination = drawCityMarker(dst)
+
+        fitCameraView(source, destination)
+
+        geoInterpolator = GeoInterpolator.SineInterpolator(
+                GeoProjector.Mercator(), source.position, destination.position)
+
+        drawSineLine()
+    }
+
+    /** Creates plane marker and starts animation */
+    override fun startPlaneAnimation() {
+        // create and add plane marker
+        val plane = googleMap.addMarker(MarkerOptions()
+                .position(source.position)
+                .anchor(0.5f, 0.5f)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_plane))
+                .flat(true)
+                .zIndex(2f))
+
+        // create plane animator and start animation
+        planeAnimator = PlaneAnimator(geoInterpolator, ANIMATION_DURATION)
+        planeAnimator.animate(plane)
+        planeAnimator.setCurrentPlayTime(savedAnimationTime)
+        planeAnimator.start()
+
+        // we are animating now
+        isAnimating = true
+    }
+
+    override fun stopPlaneAnimation() {
+        savedAnimationTime = planeAnimator.getCurrentPlayTime()
+        planeAnimator.stop()
+    }
+
     /** Draw flight trajectory as dotted sine line. Line consists from map [Marker] */
-    fun drawSineLine() {
+    private fun drawSineLine() {
         // number of points that will be drawn on map, depends on route length
         val numPoints = (Math.sqrt(2 * geoInterpolator.length) + 20)
 
@@ -158,7 +155,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
      * @param src [Marker] source marker
      * @param dst [Marker] destination marker
      */
-    fun fitCameraView(src: Marker, dst: Marker) {
+    private fun fitCameraView(src: Marker, dst: Marker) {
         val builder = LatLngBounds.Builder()
         builder.include(src.position)
         builder.include(dst.position)
@@ -172,7 +169,7 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
      * @param city [City] to draw
      * @return [Marker] created marker
      */
-    fun drawCityMarker(city: City): Marker {
+    private fun drawCityMarker(city: City): Marker {
         val cityName = MarkerTextView(this)
 
         // display city iata code if present, city name otherwise
@@ -182,29 +179,5 @@ class MapActivity : MvpAppCompatActivity(), MapView, OnMapReadyCallback {
                 .position(LatLng(city.location.lat, city.location.lon))
                 .icon(cityName.asBitmapDescriptor())
                 .zIndex(1f))
-    }
-
-    /**
-     * Starts plane animation
-     *
-     * @param start [LatLng] start point of route
-     */
-    fun runPlaneAnimation(start: LatLng) {
-        // create and add plane marker
-        val plane = googleMap.addMarker(MarkerOptions()
-                .position(start)
-                .anchor(0.5f, 0.5f)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_plane))
-                .flat(true)
-                .zIndex(2f))
-
-        // create plane animator and start animation
-        planeAnimator = PlaneAnimator(geoInterpolator, ANIMATION_DURATION)
-        planeAnimator.animate(plane)
-        planeAnimator.setCurrentPlayTime(savedAnimationTime)
-        planeAnimator.start()
-
-        // we are animating now
-        isAnimating = true
     }
 }

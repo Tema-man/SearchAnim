@@ -2,6 +2,10 @@ package dev.cherry.seacrhanim.presentation.map
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import dev.cherry.seacrhanim.App
+import dev.cherry.seacrhanim.entity.City
+import dev.cherry.seacrhanim.repository.CitiesRepository
+import javax.inject.Inject
 
 /**
  *
@@ -13,14 +17,24 @@ import com.arellomobile.mvp.MvpPresenter
 @InjectViewState
 class MapPresenter : MvpPresenter<MapView>() {
 
-    private var animationTime = 0L
+    @Inject
+    lateinit var citiesRepository: CitiesRepository
+
+    init {
+        App.graph.inject(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewState.stopPlaneAnimation()
+    }
 
     /** Calls when map is ready */
     fun mapReady() {
-        viewState.startPlaneAnimation(animationTime)
-    }
+        val src: City = citiesRepository.source ?: City()
+        val dst: City = citiesRepository.destination ?: City()
 
-    fun animationPaused(time: Long) {
-        animationTime = time
+        viewState.drawCitiesAndTrajectory(src, dst)
+        viewState.startPlaneAnimation()
     }
 }
