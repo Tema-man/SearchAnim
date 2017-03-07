@@ -1,5 +1,6 @@
 package dev.cherry.seacrhanim.repository
 
+import dev.cherry.seacrhanim.entity.CitiesBean
 import dev.cherry.seacrhanim.entity.City
 import dev.cherry.seacrhanim.net.CitiesService
 import dev.cherry.seacrhanim.net.RestApi
@@ -25,10 +26,10 @@ class CitiesRepository(val restApi: RestApi, val citiesService: CitiesService) {
      * @param lang language for result
      * @return [List] of [City]
      */
-    fun getCities(name: String, lang: String): List<City> {
+    fun getCities(name: String, lang: String): CitiesBean {
         try {
             val call = citiesService.getCities(name, lang)
-            return restApi.execute(call).cities
+            return restApi.execute(call)
         } catch (e: Exception) {
             throw IllegalStateException(e)
         }

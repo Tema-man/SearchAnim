@@ -7,6 +7,7 @@ import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import dev.cherry.seacrhanim.R
+import dev.cherry.seacrhanim.entity.CitiesBean
 import dev.cherry.seacrhanim.entity.City
 import dev.cherry.seacrhanim.presentation.map.MapActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -72,10 +73,8 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     /** @see [MainView.navigateToMap] */
-    override fun navigateToMap(source: City, destination: City) {
+    override fun navigateToMap() {
         val intent = Intent(this, MapActivity::class.java)
-        intent.putExtra(MapActivity.SOURCE, source)
-        intent.putExtra(MapActivity.DESTINATION, destination)
         startActivity(intent)
     }
 
@@ -101,9 +100,9 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
             // check if we has some data
             if ((results?.count ?: 0) > 0) {
-                @Suppress("UNCHECKED_CAST")
                 // set data and update adapter
-                citiesAdapter.setData(results?.values as List<City>)
+                val cities = (results?.values as CitiesBean?)?.cities ?: emptyList()
+                citiesAdapter.setData(cities)
                 citiesAdapter.notifyDataSetChanged()
             } else {
                 // notify adapter that data is invalid
@@ -117,11 +116,11 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             val filterResults = FilterResults()
 
             // request presenter for cities
-            val cities = presenter.getCities(constraint as String)
+            val citiesBean = presenter.getCities(constraint as String)
 
             // assign data to results and return
-            filterResults.values = cities
-            filterResults.count = cities.size
+            filterResults.values = citiesBean
+            filterResults.count = citiesBean.cities.size
             return filterResults
         }
     }
