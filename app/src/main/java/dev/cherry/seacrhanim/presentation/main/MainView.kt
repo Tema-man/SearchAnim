@@ -3,7 +3,6 @@ package dev.cherry.seacrhanim.presentation.main
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import dev.cherry.seacrhanim.entity.City
 
 /**
  * Mvp View interface for main screen
@@ -21,13 +20,8 @@ interface MainView : MvpView {
      */
     fun showError(t: Throwable?)
 
-    /**
-     * Navigates to map screen. And pass to map position data
-     *
-     * @param source [City] source point
-     * @param destination [City] destination point
-     */
-    fun navigateToMap(source: City, destination: City)
+    /** Navigates to map screen */
+    fun navigateToMap()
 
     /** Display error message, that source point not selected */
     fun showSourceNotSelectedError()

@@ -3,6 +3,7 @@ package dev.cherry.seacrhanim.presentation.main
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import dev.cherry.seacrhanim.App
+import dev.cherry.seacrhanim.entity.CitiesBean
 import dev.cherry.seacrhanim.entity.City
 import dev.cherry.seacrhanim.repository.CitiesRepository
 import javax.inject.Inject
@@ -23,15 +24,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     // system locate
     private val locale: String = App.locale
 
-    // selected source point
-    private var source: City? = null
-
-    //selected destinatoin point
-    private var destination: City? = null
-
-    // initialization
     init {
-        // ask dagger graph for dependencies
         App.graph.inject(this)
     }
 
@@ -41,12 +34,12 @@ class MainPresenter : MvpPresenter<MainView>() {
      * @param name city name for request
      * @return [List] of filtered [City]
      */
-    fun getCities(name: String): List<City> {
+    fun getCities(name: String): CitiesBean {
         try {
             return citiesRepository.getCities(name, locale)
         } catch (e: Exception) {
             viewState.showError(e)
-            return emptyList()
+            return CitiesBean()
         }
     }
 
@@ -56,7 +49,7 @@ class MainPresenter : MvpPresenter<MainView>() {
      * @param source [City] that selected as source
      */
     fun sourceSelected(source: City?) {
-        this.source = source
+        citiesRepository.source = source
     }
 
     /**
@@ -65,24 +58,24 @@ class MainPresenter : MvpPresenter<MainView>() {
      * @param destination [City] that selected as source
      */
     fun destinationSelected(destination: City?) {
-        this.destination = destination
+        citiesRepository.destination = destination
     }
 
     /** Handles search button click */
     fun searchClick() {
         // check source selected, if not show notification
-        if (source == null) {
+        if (citiesRepository.source == null) {
             viewState.showSourceNotSelectedError()
             return
         }
 
         // check destination selected, if not show notification
-        if (destination == null) {
+        if (citiesRepository.destination == null) {
             viewState.showDestinationNotSelectedError()
             return
         }
 
         // ask view to navigate to map screen with selected points
-        viewState.navigateToMap(source as City, destination as City)
+        viewState.navigateToMap()
     }
 }
